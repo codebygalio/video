@@ -17,6 +17,7 @@ export default {
 
 <style lang="scss">
 .home{
+    background: #000;
     width: 100%;
     height: 100%;
 }

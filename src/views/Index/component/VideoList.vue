@@ -4,15 +4,20 @@
             <swiper-slide class="swiper-item" v-for="(item,index) in list" :key="item.id">
                 <Video ref="videos" :videos="item" :index="index"/>
                 <Left v-if="index ===pages" :item="item"/>
-                <Right v-if="index ===pages" :item="item"/>
+                <Right :loveColor="loveColor" v-if="index ===pages" :item="item"  @openComment="openComment" @openShare="openShare"/>
             </swiper-slide>
         </swiper>
         <!-- <div v-if="first"><img  class="stop-icon" src="~@/assets/img/stop.png" alt=""></div> -->
-
+        <!-- <Component :is="componentName" /> -->
+    <!-- <Component :is="componentName"/> -->
+    <Comment :isShow="isShow" @close="isShow=false"/>
+    <Share @close="showShare=false" :isShow="showShare"/>
   </div>
 </template>
 
 <script>
+import Share from '@/components/Share'
+import Comment from '@/components/Comment'
 import { swiper, swiperSlide } from 'vue-awesome-swiper'
 import Video from './Video.vue'
 import Left from './Left.vue'
@@ -24,21 +29,29 @@ export default {
         this.getList()
     },
     components: {
+        Share,
         Video,
         Left,
         Right,
         swiper,
-        swiperSlide
+        swiperSlide,
+        Comment
     },
     data () {
         return {
-            // first: true,
+            componentName: 'Share',
+            showShare: false,
+            isShow: false,
+            loveColor: false,
             pages: 0,
             swiperOption: {
                 direction: 'vertical',
                 on: {
                     tap: (swiper) => {
                         this.player()
+                    },
+                    doubleTap: (swiper) => {
+                        this.showColor()
                     },
                     slideNextTransitionStart: () => {
                         this.pages += 1
@@ -55,6 +68,14 @@ export default {
     },
 
     methods: {
+        openComment () {
+            this.isShow = true
+            this.componentName = 'Comment'
+        },
+        openShare () {
+            this.showShare = true
+            this.componentName = 'Share'
+        },
         async getList () {
             const { data } = await requests.get('/mock/videos.json')
             this.list = data
@@ -72,6 +93,9 @@ export default {
         previous () {
             this.$refs.videos[this.pages].play()
             this.$refs.videos[this.pages + 1].pause()
+        },
+        showColor () {
+            this.loveColor = this.loveColor === false
         }
     }
 }
